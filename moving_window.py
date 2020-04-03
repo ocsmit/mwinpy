@@ -44,3 +44,19 @@ def multi_mw(array_1, array_2, max_window):
     for i in range(1, max_window):
         co.append(moving_window(array_1, array_2, i))
     return co
+
+def ft(array_1, array_2, max_window, weight):
+    fw = multi_mw(array_1, array_2, max_window)
+    for i in range(1, max_window):
+        w = sum([i for i in range(1, max_window)])
+        print(w)
+        i = -(weight) * (w - 1)
+        print(i)
+        e = math.exp(i)
+        print(e)
+        out = float(w * fw * e / fw * int(e))
+
+    return out
+
+
+
