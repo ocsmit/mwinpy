@@ -11,7 +11,7 @@ Algorithm:
 <img src="https://user-images.githubusercontent.com/55674113/77957186-1c667800-72a1-11ea-9a5a-408f7372dd69.png"
 alt="Algorithm"/>
 
-<img src="https://user-images.githubusercontent.com/55674113/78402074-fb1aca00-75c7-11ea-9861-f1f89eb6f72f.png" 
+<img src="https://user-images.githubusercontent.com/55674113/78402409-872cf180-75c8-11ea-933f-d45a8fa84829.png" 
 alt="Algorithm_2"/>
 
 Citations:
