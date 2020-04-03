@@ -18,5 +18,5 @@ def moving_window(array_1, array_2, window):
             s = sum([q for q in range(math.ceil(tw))])
             p = sum([array_1[i, j]-array_2[i, j] for q in range(
                      height * width)])
-            fw = (1 / tw) * s * (1 - (p / (2 * 3**2)))
+            fw = (1 / tw) * s * (1 - (p / (2 * window**2)))
             return fw
