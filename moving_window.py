@@ -1,30 +1,12 @@
-# Moving window analysis for raster comparison
-# Author: Owen Smith
+################################################################################
+# Title: moving_window.py
+# Author: Owen Smith, University of North Georgia
+# Purpose: Functions to create a moving window window comarison coeficent for
+#          array and raster analysis.
+################################################################################
 
 import math
 import numpy as np
-
-# i, j = y, x
-# a1 = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1]])
-#
-# a2 = np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1],
-#                [1, 1, 1, 1, 1, 1, 1, 1, 1]])
-# w = 3
 
 
 def neighbors(im, i, j, d=1):
@@ -32,6 +14,7 @@ def neighbors(im, i, j, d=1):
     return n
 
 
+# TODO: Refactor for raster analysis
 def moving_window(array_1, array_2, window):
     for i in range(array_1.shape[0]):
         g = []
