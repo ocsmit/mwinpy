@@ -34,23 +34,17 @@ def neighbors(im, i, j, d=1):
 
 def moving_window(array_1, array_2, window):
     for i in range(array_1.shape[0]):
+        g = []
+        height, width = array_2.shape
+        tw = (height * width) / (window * window)
         for j in range(array_1.shape[1]):
-            height, width = array_1.shape
-            tw = (height * width) / (window * window)
-            s = math.fsum([q for q in range(math.ceil(tw))])
-            p = math.fsum([array_1[i, j]-array_2[i, j] for i in range(
-                     2)])
-            fw = (1 / tw) * s * (1 - (p / (2 * window**2)))
-            return fw / tw
+            a = neighbors(array_1, i, j)
+            b = neighbors(array_2, i, j)
+            c = a - b
+            d = len(np.nonzero(c)[0]) * 2
+            e = math.ceil(2 * (math.sqrt(len(c)) ** 2))
+            f = (1 - d / e) if d != 0 else 1 - 0
+            g.append(f / tw)
+            h = math.fsum(g)
 
-
-def multi_mw(array_1, array_2, max_window):
-    co = []
-    for i in range(1, max_window):
-        co.append(moving_window(array_1, array_2, i))
-    return co
-
-
-
-
-
+    print('Similarity: ', h)
