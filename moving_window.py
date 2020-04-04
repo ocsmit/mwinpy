@@ -27,14 +27,19 @@ import numpy as np
 # w = 3
 
 
+def neighbors(im, i, j, d=1):
+    n = im[i-d:i+d+1, j-d:j+d+1].flatten()
+    return n
+
+
 def moving_window(array_1, array_2, window):
     for i in range(array_1.shape[0]):
         for j in range(array_1.shape[1]):
             height, width = array_1.shape
             tw = (height * width) / (window * window)
-            s = sum([q for q in range(math.ceil(tw))])
-            p = sum([array_1[i, j]-array_2[i, j] for q in range(
-                     height * width)])
+            s = math.fsum([q for q in range(math.ceil(tw))])
+            p = math.fsum([array_1[i, j]-array_2[i, j] for i in range(
+                     2)])
             fw = (1 / tw) * s * (1 - (p / (2 * window**2)))
             return fw / tw
 
@@ -45,18 +50,7 @@ def multi_mw(array_1, array_2, max_window):
         co.append(moving_window(array_1, array_2, i))
     return co
 
-def ft(array_1, array_2, max_window, weight):
-    fw = multi_mw(array_1, array_2, max_window)
-    for i in range(1, max_window):
-        w = sum([i for i in range(1, max_window)])
-        print(w)
-        i = -(weight) * (w - 1)
-        print(i)
-        e = math.exp(i)
-        print(e)
-        out = float(w * fw * e / fw * int(e))
 
-    return out
 
 
 
