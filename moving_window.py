@@ -14,20 +14,20 @@ def neighbors(im, i, j, d=1):
     return n
 
 
-# TODO: Refactor for raster analysis
-def moving_window(array_1, array_2, window):
+def moving_window(array_1, array_2):
+    g = []
+    w = (3**2) * 2
+    height, width = array_2.shape
+    tw = (height * width)
     for i in range(array_1.shape[0]):
-        g = []
-        height, width = array_2.shape
-        tw = (height * width) / (window * window)
         for j in range(array_1.shape[1]):
             a = neighbors(array_1, i, j)
             b = neighbors(array_2, i, j)
-            c = a - b
-            d = len(np.nonzero(c)[0]) * 2
-            e = math.ceil(2 * (math.sqrt(len(c)) ** 2))
-            f = (1 - d / e) if d != 0 else 1 - 0
-            g.append(f / tw)
-            h = math.fsum(g)
+            c = abs(a - b)
+            d = len(np.nonzero(c)[0])
+            e = abs((1 - d / w)) if d != 0 else w / w
+            g.append(e)
+    sim = math.fsum(g) / tw
+    print('Total similarity: ', sim * 100, '%')
+    return g
 
-    print('Similarity: ', h)
