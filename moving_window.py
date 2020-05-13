@@ -15,6 +15,15 @@ def neighbors(im, i, j, d=1):
 
 
 def moving_window(array_1, array_2):
+    """
+    Moving window function to take two arrays and apply a 3*3 window
+    comparison for each cell and compute both cell similarity percentage and
+    similarity percentage for the whole dataset.
+
+    :param array_1: NumPy array 1
+    :param array_2: NumPy array 2
+    :return: similarity array
+    """
     g = []
     w = (3**2)
     height, width = array_2.shape
