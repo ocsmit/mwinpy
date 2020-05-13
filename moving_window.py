@@ -16,7 +16,7 @@ def neighbors(im, i, j, d=1):
 
 def moving_window(array_1, array_2):
     g = []
-    w = (3**2) * 2
+    w = (3**2)
     height, width = array_2.shape
     tw = (height * width)
     for i in range(array_1.shape[0]):
@@ -26,8 +26,10 @@ def moving_window(array_1, array_2):
             c = abs(a - b)
             d = len(np.nonzero(c)[0])
             e = abs((1 - d / w)) if d != 0 else w / w
+            print(e)
             g.append(e)
     sim = math.fsum(g) / tw
+    sim_arr = np.array(g)
+    sim_arr1 = sim_arr.reshape(array_1.shape)
     print('Total similarity: ', sim * 100, '%')
-    return g
-
+    return sim_arr1
