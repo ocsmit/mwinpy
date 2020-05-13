@@ -7,6 +7,7 @@
 
 import math
 import numpy as np
+from osgeo import gdal
 
 
 def neighbors(im, i, j, d=1):
@@ -42,3 +43,43 @@ def moving_window(array_1, array_2):
     sim_arr1 = sim_arr.reshape(array_1.shape)
     print('Total similarity: ', sim * 100, '%')
     return sim_arr1
+
+
+def raster_moving_window(raster_1, raster_2, out_tiff=None):
+    """
+    Moving window function to for rasters which applies a 3*3 window
+    comparison for each cell and compute both cell similarity percentage and
+    similarity percentage for the whole dataset. IF out_tif is specified then it
+    saves the out put array as a GeoTIFF.
+
+    :param raster_1: path for raster 1
+    :param raster_2: path for raster 2
+    :param out_tiff: path to save the output similarity GeoTIFF
+    :return: similarity array
+    """
+    path1 = gdal.Open(raster_1)
+    path2 = gdal.Open(raster_2)
+    arr_1 = path1.GetRasterBand(1).ReadAsArray().astype(np.uint8)
+    arr_2 = path2.GetRasterBand(1).ReadAsArray().astype(np.uint8)
+
+    sim = moving_window(arr_1, arr_2)
+    if out_tiff:
+        driver = gdal.GetDriverByName('GTiff')
+        metadata = driver.GetMetadata()
+        shape = arr_1.shape
+        dst_ds = driver.Create(out_tiff,
+                               shape[1],
+                               shape[0],
+                               1,
+                               gdal.GDT_Float32)
+        proj = path1.GetProjection()
+        geo = path2.GetGeoTransform()
+        dst_ds.SetGeoTransform(geo)
+        dst_ds.SetProjection(proj)
+        dst_ds.GetRasterBand(1).WriteArray(sim)
+        dst_ds.GetRasterBand(1).SetNoDataValue(3)
+        dst_ds.FlushCache()
+        dst_ds = None
+        return sim
+    if not out_tiff:
+        return sim
