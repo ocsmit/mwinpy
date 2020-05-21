@@ -80,6 +80,7 @@ def raster_moving_window(raster_1, raster_2, out_tiff=None):
         dst_ds.GetRasterBand(1).SetNoDataValue(3)
         dst_ds.FlushCache()
         dst_ds = None
-        return sim
+        del(sim)
     if not out_tiff:
-        return sim
+        del(sim)
+
