@@ -29,6 +29,21 @@ mw.save_tif("./out_raster.tif")
 sim_arr = mw.out
 ```
 
+                window values:
+                +-----+-------+
+                |  1  |  3x3  |
+                |  2  |  5x5  |
+                |  3  |  7x7  |
+                |  4  |  9x9  |
+                |  5  | 11x11 |
+                |  6  | 13x13 |
+                |  7  | 15x15 |
+                |  8  | 17x17 |
+                |  9  | 19x19 |
+                | 10  | 21x21 |
+                +-----+-------+
+
+
 ### Example output with 2013 & 2016 NLCD data
 
 <img src="https://render.githubusercontent.com/render/math?math=a_1 " width="25" height="25"> | Raster Map 1
