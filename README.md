@@ -1,15 +1,33 @@
 # MWinPy
-Moving window raster comparison algorthim. 
+Moving window raster comparison algorithm. 
 
-MWinPy is an implementation of the moving window comparison algroithm desgined to work with geospatial data.
+MWinPy is an implementation of the moving window comparison algorithm designed to work with geospatial data.
 
-### Problem
+Moving window comparisons can be useful for comparing changes between two different data sets while taking into account spatial patterns that a pixel by pixel approach will fail to detect. 
 
-<img src="https://user-images.githubusercontent.com/55674113/77957186-1c667800-72a1-11ea-9a5a-408f7372dd69.png"
-alt="Algorithm" width="448.7" height="174.7"/>
+### Usage
 
-<img src="https://user-images.githubusercontent.com/55674113/77956975-c1cd1c00-72a0-11ea-99e9-6a41bed1e1fc.png"
-width="441" height="515"/>
+```
+from mwinpy import MWin
+
+# initialize the moving window
+mw = MWin(1) # 1 denotes a 3 x 3 window. 
+
+# Read rasters into arrays and store within MWin class
+mw.load_rasters('./raster_1.tif", "./raster_2.tif")
+
+# Run moving window comparing the 2 rasters with a 3 x 3 
+# moving window
+mw.fit()
+
+# Total Similarity: 82.96 %
+
+# Save tif
+mw.save_tif("./out_raster.tif")
+
+# Or assign array to variable to analyze with other packages
+sim_arr = mw.out
+```
 
 ### Example output with 2013 & 2016 NLCD data
 
@@ -24,6 +42,15 @@ width="441" height="515"/>
 <img src="https://render.githubusercontent.com/render/math?math=F_w" width="25" height="25"> | Similarity
 
 <img src="https://user-images.githubusercontent.com/55674113/94375240-4d085c80-00e0-11eb-950e-7e59aa751342.png" width="484.87" height="465"/>
+
+### Algorithm
+
+<img src="https://user-images.githubusercontent.com/55674113/77957186-1c667800-72a1-11ea-9a5a-408f7372dd69.png"
+alt="Algorithm" width="448.7" height="174.7"/>
+
+<img src="https://user-images.githubusercontent.com/55674113/77956975-c1cd1c00-72a0-11ea-99e9-6a41bed1e1fc.png"
+width="441" height="515"/>
+
 
 Citations:
 
