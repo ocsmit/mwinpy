@@ -65,6 +65,7 @@ class MWin:
         w = (((self.w * 2) + 1) ** 2)
         height, width = self.array_2.shape
         tw = (height * width)
+
         for i in range(self.array_1.shape[0]):
             for j in range(self.array_1.shape[1]):
                 a = neighbors(self.array_1, i, j, self.w)
@@ -73,10 +74,13 @@ class MWin:
                 d = len(np.nonzero(c)[0])
                 e = abs((1 - d / w)) if d != 0 else w / w
                 self.out.append(e)
+
         sim = math.fsum(self.out) / tw
         sim_arr = np.array(self.out)
         sim_arr1 = sim_arr.reshape(self.array_1.shape)
+
         print('Total similarity: ', sim * 100, '%')
+
         self.similarity = sim * 100
         self.out = sim_arr1
 
