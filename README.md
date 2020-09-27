@@ -11,7 +11,7 @@ alt="Algorithm" width="448.7" height="174.7"/>
 <img src="https://user-images.githubusercontent.com/55674113/77956975-c1cd1c00-72a0-11ea-99e9-6a41bed1e1fc.png"
 width="441" height="515"/>
 
-### Example output
+### Example output with 2013 & 2016 NLCD data
 
 <img src="https://render.githubusercontent.com/render/math?math=a_1 " width="25" height="25"> | Raster Map 1
 
