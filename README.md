@@ -1,6 +1,8 @@
-# moving-window
-Moving window raster comparison algorthim
-          
+# MWinPy
+Moving window raster comparison algorthim. 
+
+MWinPy is an implementation of the moving window comparison algroithm desgined to work with geospatial data.
+
 Algorithm:
 
 <img src="https://user-images.githubusercontent.com/55674113/77957186-1c667800-72a1-11ea-9a5a-408f7372dd69.png"
