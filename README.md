@@ -17,7 +17,8 @@ Example output:
 <img src="https://render.githubusercontent.com/render/math?math=a_2" width="50" height="50">
 <img src="https://user-images.githubusercontent.com/55674113/94374896-855a6b80-00dd-11eb-82af-c6dee9ea547c.png" width="465" height="465"/>
 
-<img src="https://render.githubusercontent.com/render/math?math=F_w" width="50" height="50"> <img src="https://user-images.githubusercontent.com/55674113/94375240-4d085c80-00e0-11eb-950e-7e59aa751342.png" width="484.87" height="465"/>
+<img src="https://render.githubusercontent.com/render/math?math=F_w" width="50" height="50"> 
+<img src="https://user-images.githubusercontent.com/55674113/94375240-4d085c80-00e0-11eb-950e-7e59aa751342.png" width="484.87" height="465"/>
 
 Citations:
 
