@@ -101,3 +101,17 @@ class MWin:
         dst_ds.GetRasterBand(1).SetNoDataValue(3)
         dst_ds.FlushCache()
         dst_ds = None
+
+    def plot_data(self, cmap='tab20b'):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 2, 1)
+        ax1.imshow(self.array_1, cmap=cmap)
+        ax1 = fig.add_subplot(1, 2, 2)
+        ax1.imshow(self.array_2, cmap=cmap)
+        plt.show()
+
+    def plot_simarr(self, cmap='RdYlBu'):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+        ax1.imshow(self.sim_matrix, cmap=cmap)
+        plt.show()
