@@ -8,6 +8,7 @@
 import math
 import numpy as np
 from osgeo import gdal
+import matplotlib.pyplot as plt
 
 
 def neighbors(im, i, j, d=1):
@@ -18,9 +19,34 @@ def neighbors(im, i, j, d=1):
 class MWin:
 
     def __init__(self, w):
+        """
+        Class to run a moving window comparison on two raster maps of the same size.
+
+        Parameters
+        ----------
+            w : int
+                Size of the moving window to be used.
+                +-----+-------+
+                |  1  |  3x3  |
+                |  2  |  5x5  |
+                |  3  |  7x7  |
+                |  4  |  9x9  |
+                |  5  | 11x11 |
+                |  6  | 13x13 |
+                |  7  | 15x15 |
+                |  8  | 17x17 |
+                |  9  | 19x19 |
+                | 10  | 21x21 |
+                +-----+-------+
+
+        Attributes
+        ----------
+            w : int
+                Size of the moving window to be used.
+
+        """
 
         self.w = w
-        self.out = []
 
     def load_rasters(self, path_1, path_2):
 
@@ -36,32 +62,7 @@ class MWin:
         self.array_2 = np.array(array_2)
 
     def fit(self):
-        """
-        Moving window function to take two arrays and apply a 3*3 window
-        comparison for each cell and compute both cell similarity percentage and
-        similarity percentage for the whole dataset.
-        :param array_1: NumPy array 1
-        :param array_2: NumPy array 2
-        :param window=1: Window that is applied to the arrays. The default is 1
-        which applies a 3x3 window.
-
-                window values:
-                +-----+-------+
-                |  1  |  3x3  |
-                |  2  |  5x5  |
-                |  3  |  7x7  |
-                |  4  |  9x9  |
-                |  5  | 11x11 |
-                |  6  | 13x13 |
-                |  7  | 15x15 |
-                |  8  | 17x17 |
-                |  9  | 19x19 |
-                | 10  | 21x21 |
-                +-----+-------+
-
-        :return: similarity array
-        """
-        self.out = []
+        vector = []
         w = (((self.w * 2) + 1) ** 2)
         height, width = self.array_2.shape
         tw = (height * width)
@@ -73,16 +74,15 @@ class MWin:
                 c = abs(a - b)
                 d = len(np.nonzero(c)[0])
                 e = abs((1 - d / w)) if d != 0 else w / w
-                self.out.append(e)
+                vector.append(e)
 
-        sim = math.fsum(self.out) / tw
-        sim_arr = np.array(self.out)
-        sim_arr1 = sim_arr.reshape(self.array_1.shape)
+        sim = math.fsum(vector) / tw
+        self.sim_matrix = np.array(vector).reshape(self.array_1.shape)
+        self.vector = np.array(vector)
 
         print('Total similarity: ', sim * 100, '%')
 
         self.similarity = sim * 100
-        self.out = sim_arr1
 
     def save_tif(self, out_tif):
         driver = gdal.GetDriverByName('GTiff')
@@ -101,4 +101,3 @@ class MWin:
         dst_ds.GetRasterBand(1).SetNoDataValue(3)
         dst_ds.FlushCache()
         dst_ds = None
-
