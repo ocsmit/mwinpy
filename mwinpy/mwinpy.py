@@ -9,12 +9,17 @@ import math
 import numpy as np
 from osgeo import gdal
 import matplotlib.pyplot as plt
+import multiprocessing as mp
+import time
 
+def test_function(i):
+    print("function starts" + str(i))
+    time.sleep(1)
+    print("function ends" + str(i))
 
 def neighbors(im, i, j, d=1):
     n = im[i-d:i+d+1, j-d:j+d+1].flatten()
     return n
-
 
 class MWin:
 
@@ -97,7 +102,6 @@ class MWin:
         geo = self.spatial.GetGeoTransform()
         dst_ds.SetGeoTransform(geo)
         dst_ds.SetProjection(proj)
-        dst_ds.GetRasterBand(1).WriteArray(self.out)
         dst_ds.GetRasterBand(1).SetNoDataValue(3)
         dst_ds.FlushCache()
         dst_ds = None
@@ -115,3 +119,92 @@ class MWin:
         ax1 = fig.add_subplot(1, 1, 1)
         ax1.imshow(self.sim_matrix, cmap=cmap)
         plt.show()
+
+
+class MWin_multi:
+
+    def __init__(self, w, path_1, path_2):
+        """
+        Class to run a moving window comparison on two raster maps of the same size.
+
+        Parameters
+        ----------
+            w : int
+                Size of the moving window to be used.
+                +-----+-------+
+                |  1  |  3x3  |
+                |  2  |  5x5  |
+                |  3  |  7x7  |
+                |  4  |  9x9  |
+                |  5  | 11x11 |
+                |  6  | 13x13 |
+                |  7  | 15x15 |
+                |  8  | 17x17 |
+                |  9  | 19x19 |
+                | 10  | 21x21 |
+                +-----+-------+
+
+        Attributes
+        ----------
+            w : int
+                Size of the moving window to be used.
+
+        """
+
+        self.w = w
+        self.path1 = path_1
+        self.path2 = path_2
+
+    def mw(self):
+        path1 = gdal.Open(self.path1)
+        path2 = gdal.Open(self.path2)
+        self.spatial = path1
+        self.array_1 = path1.GetRasterBand(1).ReadAsArray()
+        self.array_2 = path2.GetRasterBand(1).ReadAsArray()
+        self.shape = self.array_1.shape
+        del (self.array_1)
+        del (self.array_2)
+        self.vector = []
+        w = (((self.w * 2) + 1) ** 2)
+        height, width = self.shape
+        tw = (height * width)
+        i = 0
+
+        for i in range(self.shape[1]):
+            self.v11 = path1.GetRasterBand(1).ReadAsArray()[i - 1, :]
+            self.v12 = path1.GetRasterBand(1).ReadAsArray()[i, :]
+            if i == self.shape[0] - 1:
+                self.v13 = path1.GetRasterBand(1).ReadAsArray()[i, :]
+            else:
+                self.v13 = path1.GetRasterBand(1).ReadAsArray()[i + 1, :]
+
+            self.v21 = path2.GetRasterBand(1).ReadAsArray()[i - 1, :]
+            self.v22 = path2.GetRasterBand(1).ReadAsArray()[i, :]
+            if i == self.shape[0] - 1:
+                self.v23 = path2.GetRasterBand(1).ReadAsArray()[i, :]
+            else:
+                self.v23 = path2.GetRasterBand(1).ReadAsArray()[i + 1, :]
+
+            arr1 = np.stack((self.v11, self.v12, self.v13))
+            arr2 = np.stack((self.v21, self.v22, self.v23))
+            a = neighbors(arr1, 1, i, self.w)
+            b = neighbors(arr2, 1, i, self.w)
+            c = abs(a - b)
+            d = len(np.nonzero(c)[0])
+            e = abs((1 - d / w)) if d != 0 else w / w
+            self.vector.append(e)
+            print(len(self.vector))
+
+    def fit(self, path_1, path_2):
+
+
+        while i < self.shape[0]:
+            print(i)
+
+            with mp.Pool(processes=mp.cpu_count()) as pool:
+                pool.map(test_function, [i for i in range(4)])
+                pool.close()
+                pool.join()
+            i+=1
+
+        print(math.fsum(self.vector) / tw)
