@@ -11,6 +11,7 @@ from osgeo import gdal
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 import time
+from concurrent import futures
 
 def test_function(i):
     print("function starts" + str(i))
@@ -152,59 +153,73 @@ class MWin_multi:
         """
 
         self.w = w
-        self.path1 = path_1
-        self.path2 = path_2
-
-    def mw(self):
-        path1 = gdal.Open(self.path1)
-        path2 = gdal.Open(self.path2)
-        self.spatial = path1
-        self.array_1 = path1.GetRasterBand(1).ReadAsArray()
-        self.array_2 = path2.GetRasterBand(1).ReadAsArray()
+        self.path1 = gdal.Open(path_1)
+        self.path2 = gdal.Open(path_2)
+        self.array_1 = self.path1.GetRasterBand(1).ReadAsArray()
+        self.array_2 = self.path2.GetRasterBand(1).ReadAsArray()
         self.shape = self.array_1.shape
+        self.vector = []
+        self.v_dict = {}
         del (self.array_1)
         del (self.array_2)
-        self.vector = []
+
+    def split_arrays(self, i):
+        if i - 1 < 0:
+            self.v11 = self.path1.GetRasterBand(1).ReadAsArray()[i, :]
+            self.v21 = self.path2.GetRasterBand(1).ReadAsArray()[i, :]
+        else:
+            self.v11 = self.path1.GetRasterBand(1).ReadAsArray()[i - 1, :]
+            self.v21 = self.path2.GetRasterBand(1).ReadAsArray()[i - 1, :]
+        self.v12 = self.path1.GetRasterBand(1).ReadAsArray()[i, :]
+        self.v22 = self.path2.GetRasterBand(1).ReadAsArray()[i, :]
+        if i == self.shape[0] - 1:
+            self.v13 = self.path1.GetRasterBand(1).ReadAsArray()[i, :]
+            self.v23 = self.path2.GetRasterBand(1).ReadAsArray()[i, :]
+        else:
+            self.v13 = self.path1.GetRasterBand(1).ReadAsArray()[i + 1, :]
+            self.v23 = self.path2.GetRasterBand(1).ReadAsArray()[i + 1, :]
+
+        arr1 = np.stack((self.v11, self.v12, self.v13))
+        arr2 = np.stack((self.v21, self.v22, self.v23))
+
+        return arr1, arr2
+
+    def mw(self, i):
+
+
+        #time.sleep(0.02)
+
         w = (((self.w * 2) + 1) ** 2)
-        height, width = self.shape
-        tw = (height * width)
-        i = 0
-
-        for i in range(self.shape[1]):
-            self.v11 = path1.GetRasterBand(1).ReadAsArray()[i - 1, :]
-            self.v12 = path1.GetRasterBand(1).ReadAsArray()[i, :]
-            if i == self.shape[0] - 1:
-                self.v13 = path1.GetRasterBand(1).ReadAsArray()[i, :]
-            else:
-                self.v13 = path1.GetRasterBand(1).ReadAsArray()[i + 1, :]
-
-            self.v21 = path2.GetRasterBand(1).ReadAsArray()[i - 1, :]
-            self.v22 = path2.GetRasterBand(1).ReadAsArray()[i, :]
-            if i == self.shape[0] - 1:
-                self.v23 = path2.GetRasterBand(1).ReadAsArray()[i, :]
-            else:
-                self.v23 = path2.GetRasterBand(1).ReadAsArray()[i + 1, :]
-
-            arr1 = np.stack((self.v11, self.v12, self.v13))
-            arr2 = np.stack((self.v21, self.v22, self.v23))
-            a = neighbors(arr1, 1, i, self.w)
-            b = neighbors(arr2, 1, i, self.w)
+        arr1, arr2 = self.split_arrays(i)
+        vector = []
+        for j in range(arr1.shape[1]):
+            a = neighbors(arr1, 1, j, self.w)
+            b = neighbors(arr2, 1, j, self.w)
             c = abs(a - b)
             d = len(np.nonzero(c)[0])
             e = abs((1 - d / w)) if d != 0 else w / w
             self.vector.append(e)
-            print(len(self.vector))
 
-    def fit(self, path_1, path_2):
+    def test(self, i):
+        self.vector.append(i)
 
+    def fit(self):
+        self.spatial = self.path1
+        self.vector = []
+        height, width = self.shape
+        tw = (height * width)
+        vector = []
+        pool = mp.Pool()
+        with futures.ThreadPoolExecutor(max_workers=mp.cpu_count()) as executor:
+            executor.map(self.mw, [i for i in range(self.shape[0])], chunksize=5) #for i in range(self.shape[0])]
+        #for i in range(self.shape[0]):
+        #    self.mw(i)
+        self.similarity = (math.fsum(self.vector) / tw) * 100
 
-        while i < self.shape[0]:
-            print(i)
+        print(self.similarity)
+        #for i in range(self.shape[1]):
+        #    pool.apply_async(self.mw, args=(i), callback=vector.append)
+        #pool.join()
+        #pool.close()
 
-            with mp.Pool(processes=mp.cpu_count()) as pool:
-                pool.map(test_function, [i for i in range(4)])
-                pool.close()
-                pool.join()
-            i+=1
-
-        print(math.fsum(self.vector) / tw)
+        # correct is 96.82230869001297
