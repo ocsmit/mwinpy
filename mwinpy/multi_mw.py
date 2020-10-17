@@ -1,4 +1,5 @@
 from mwinpy import MWin_multi
+import matplotlib.pyplot as plt
 import numpy as np
 import time
 from threading import Thread
@@ -57,6 +58,7 @@ class new_alg:
         w = (((self.w * 2) + 1) ** 2)
         arr1_sl, arr2_sl = arr1[sl[0]:sl[1],], arr2[sl[0]:sl[1],]
         vector = []
+        print(arr1_sl.shape)
         for ii in range(arr1_sl.shape[0]):
             for j in range(arr1_sl.shape[1]):
                 a = self.__neighbors(arr1_sl, ii, j, self.w)
@@ -72,28 +74,39 @@ class new_alg:
 
     def fit(self, arr, arr2):
         slice = self.__split()
-        results = Parallel(n_jobs=4)(delayed(self.mw)(arr, arr2, sl)
+        print(slice)
+        results = Parallel(n_jobs=self.threads)(delayed(self.mw)(arr, arr2, sl)
                                      for sl in slice)
         #results = Parallel(n_jobs=2)(delayed(sqrt)(i**2) for i in range(10))
+        sim_list = []
+        for i in range(len(results)):
+            sim_list += results[i]
+        self.sim = fsum(sim_list) / (self.i * self.j)
         return results
 
 
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    #x = "/home/owen/Data/LC08_L1TP_019035_20191128_20191216_01_T1/LC08_L1TP_019035_20191128_20191216_01_T1_B2.TIF"
-    #y = "/home/owen/Data/LC08_L1TP_019035_20191128_20191216_01_T1/LC08_L1TP_019035_20191128_20191216_01_T1_B3.TIF"
-    x = "/home/owen/Data/mwpydata/2013.tif"
-    y = "/home/owen/Data/mwpydata/2016.tif"
+    x = "/home/owen/Data/mwin/NLCD_2016.tif"
+    y = "/home/owen/Data/mwin/NLCD_2013.tif"
     path1 = gdal.Open(x)
     path2 = gdal.Open(y)
     arr1 = path1.GetRasterBand(1).ReadAsArray()
     arr2 = path2.GetRasterBand(1).ReadAsArray()
     sh = arr1.shape
-
-    mw = new_alg(4, sh, 3)
+    start = time.time()
+    mw = new_alg(10, sh, 3)
     test = mw.fit(arr1, arr2)
+    print(mw.sim)
+    end = time.time() - start
+    print("Seconds: {}".format(end))
     #print(Parallel(n_jobs=2)(delayed(sqrt)(i**2) for i in range(10)))
-    arr_test = np.array(test[0] + test[1] + test[2] + test[3])
+    test_list = []
+    for i in range(len(test)):
+        test_list += test[i]
+    arr_test = np.array(test_list)
     arr_out = arr_test.reshape(arr1.shape)
+    plt.imshow(arr_out)
+    plt.show()
 
