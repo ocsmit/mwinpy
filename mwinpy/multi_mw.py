@@ -9,8 +9,17 @@ from osgeo import gdal
 from math import fsum, sqrt
 from joblib import Parallel, delayed, dump, load
 
+class load_data:
 
-class new_alg:
+    def __init__(self, raster1, raster2):
+        path1 = gdal.Open(x)
+        path2 = gdal.Open(y)
+        self.arrays = path1.GetRasterBand(1).ReadAsArray(), \
+                      path2.GetRasterBand(1).ReadAsArray()
+        self.shape = self.arrays[0].shape
+
+
+class MWin:
 
     def __init__(self, threads, shape, window):
 
@@ -18,7 +27,7 @@ class new_alg:
 
         self.w = window
         self.threads = threads
-        self.n = self.i // threads
+        self.cluster = self.i // threads
         self.rem = self.i % threads
         self.__split_itr = []
         self.vector = []
@@ -26,31 +35,28 @@ class new_alg:
         itera = 0
         for f in range(threads):
             if f == threads - 1:
-                self.__split_itr.append((self.i // threads) + itera +
-                                        (self.i % threads))
+                self.__split_itr.append((self.cluster) + itera +
+                                        (self.rem))
             else:
-                self.__split_itr.append((self.i // threads) + itera)
-            itera += (self.i // threads)
+                self.__split_itr.append((self.cluster) + itera)
+            itera += (self.cluster)
 
     def __split(self):
         iter_range = []
         for j in range(self.threads):
             if j == 0:
-                iter_range.append([self.__split_itr[j] -
-                                   (self.i // self.threads),
+                iter_range.append([self.__split_itr[j] - (self.cluster),
                                    self.__split_itr[j]])
             elif j == self.threads - 1:
-                iter_range.append([self.__split_itr[j] -
-                                   ((self.i // self.threads) +
-                                    (self.i % self.threads)),
-                                   self.__split_itr[j]])
+                iter_range.append([self.__split_itr[j] - ((self.cluster) +
+                                  (self.rem)), self.__split_itr[j]])
             else:
-                iter_range.append([self.__split_itr[j] -
-                                   (self.i // self.threads),
+                iter_range.append([self.__split_itr[j] - (self.cluster),
                                    self.__split_itr[j]])
         return iter_range
 
-    def __neighbors(self, im, i, j, d=1):
+    def __neighbors(self, im, i, j, window):
+        d = window // 2
         n = im[i - d:i + d + 1, j - d:j + d + 1].flatten()
         return n
 
@@ -69,9 +75,6 @@ class new_alg:
                 vector.append(e)
         return vector
 
-    def test(self, sl):
-        return
-
     def fit(self, arr, arr2):
         slice = self.__split()
         print(slice)
@@ -82,31 +85,35 @@ class new_alg:
         for i in range(len(results)):
             sim_list += results[i]
         self.sim = fsum(sim_list) / (self.i * self.j)
+
+        vector = []
+        for i in range(len(results)):
+            vector += results[i]
+        vector_arr = np.array(vector)
+        self.matrix = vector_arr.reshape([self.i, self.j])
+
         return results
 
+    def plot(self, cmap="PiYG"):
+
+        plt.imshow(self.matrix, cmap=cmap)
+        plt.show()
 
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/NLCD_2016.tif"
-    y = "/home/owen/Data/mwin/NLCD_2013.tif"
-    path1 = gdal.Open(x)
-    path2 = gdal.Open(y)
-    arr1 = path1.GetRasterBand(1).ReadAsArray()
-    arr2 = path2.GetRasterBand(1).ReadAsArray()
-    sh = arr1.shape
+    x = "/home/owen/Data/mwin/nlcd_l_sample_2016.tif"
+    y = "/home/owen/Data/mwin/nlcd_l_sample_2013.tif"
+
+    data = load_data(x, y)
+    sh = data.shape
+
+    t = int(input("Threads: "))
+    w = int(input("Window: "))
     start = time.time()
-    mw = new_alg(10, sh, 3)
-    test = mw.fit(arr1, arr2)
+    mw = MWin(t, sh, w)
+    test = mw.fit(data.arrays[0], data.arrays[1])
     print(mw.sim)
     end = time.time() - start
     print("Seconds: {}".format(end))
-    #print(Parallel(n_jobs=2)(delayed(sqrt)(i**2) for i in range(10)))
-    test_list = []
-    for i in range(len(test)):
-        test_list += test[i]
-    arr_test = np.array(test_list)
-    arr_out = arr_test.reshape(arr1.shape)
-    plt.imshow(arr_out)
-    plt.show()
-
+    mw.plot()
