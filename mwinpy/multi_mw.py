@@ -102,8 +102,8 @@ class MWin:
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/nlcd_l_sample_2016.tif"
-    y = "/home/owen/Data/mwin/nlcd_l_sample_2013.tif"
+    x = "/home/owen/Data/nlcd_l_sample_2016.tif"
+    y = "/home/owen/Data/nlcd_l_sample_2013.tif"
 
     data = load_data(x, y)
     sh = data.shape
