@@ -1,2 +1,1 @@
-from .mwinpy import MWin, MWin_multi
-
+from .mwinpy import MWin
