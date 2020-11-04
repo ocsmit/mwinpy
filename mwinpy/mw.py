@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -319,6 +320,31 @@ class MWin:
         plt.imshow(self.matrix, cmap=cmap)
         plt.show()
 
+
+    def save_tif(self, snap, out_tif):
+        if os.path.exists(out_tif):
+            os.remove(out_tif)
+
+        snap = gdal.Open(snap)
+
+        driver = gdal.GetDriverByName('GTiff')
+        metadata = driver.GetMetadata()
+        shape = self.matrix.shape
+        dst_ds = driver.Create(out_tif,
+                               xsize=shape[1],
+                               ysize=shape[0],
+                               bands=1,
+                               eType=gdal.GDT_Float32)
+        proj = snap.GetProjection()
+        geo = snap.GetGeoTransform()
+        dst_ds.SetGeoTransform(geo)
+        dst_ds.SetProjection(proj)
+        dst_ds.GetRasterBand(1).SetNoDataValue(-1)
+        dst_ds.GetRasterBand(1).WriteArray(self.matrix)
+        dst_ds.FlushCache()
+        dst_ds = None
+
+
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
@@ -330,7 +356,7 @@ if __name__ == '__main__':
     out_dict = {}
     out_times = []
 
-    t = 3
+    t = 4
     w = 3
 
     # t = int(input("Threads: "))
@@ -340,5 +366,6 @@ if __name__ == '__main__':
     test = mw.fit(x, y)
     end = time.time() - start
     print(mw.sim)
-    mw.plot(cmap="magma")
+    #mw.plot(cmap="magma")
+    mw.save_tif(x, "/home/owen/tmp/OUT.tif")
 
