@@ -10,38 +10,17 @@ Moving window comparisons can be useful for comparing changes between two differ
 ```
 from mwinpy import MWin
 
-# initialize the moving window
-mw = MWin(1) # 1 denotes a 3 x 3 window. 
+# initialize a 5x5 moving window with 3 cores
+mw = MWin(5, 3) 
 
-# Read rasters into arrays and store within MWin class
-mw.load_rasters('./raster_1.tif", "./raster_2.tif")
+# Categorical rasters to compare
+x, y = "./NLCD_2013.tif", "./NLCD_2016.tif"
 
-# Run moving window comparing the 2 rasters with a 3 x 3 
-# moving window
-mw.fit()
+# Run 5x5 comparison window over x & y. NoData values read automatically.
+mw.fit(x, y)
 
-# Total Similarity: 82.96 %
-
-# Save tif
-mw.save_tif("./out_raster.tif")
-
-# Or assign array to variable to analyze with other packages
-sim_arr = mw.out
+mw.plot()
 ```
-
-|  w  | Window size|
-|-----|------------|
-|  1  |  3x3  |
-|  2  |  5x5  |
-|  3  |  7x7  |
-|  4  |  9x9  |
-|  5  | 11x11 |
-|  6  | 13x13 |
-|  7  | 15x15 |
-|  8  | 17x17 |
-|  9  | 19x19 |
-| 10  | 21x21 |
-
 
 
 ### Example output with 2013 & 2016 NLCD data
