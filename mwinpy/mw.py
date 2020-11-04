@@ -9,36 +9,31 @@ from joblib import Parallel, delayed
 
 class MWin:
     '''
-    Moving window comparison algorithm.
+    Initialize moving window
 
     Parameters
     ----------
 
-    threads : int, default=1
-        The number of cores to split the algorithm across.
+    window_size : int, default=3
+        Single integer size which indicates the i,j size of the moving
+        window. E.g. window_size of 3 is equal to a window size of 3,3.
+        Values must be odd numbers due to the way the window size is
+        computed where the window_size // 2 is equal to the number of cells
+        on each side of a cell is needed for a window.
 
-    window : int, default=3
-        The window size which will move across the raster map.
+    n_jobs : int, default=1
+        Number of jobs to run in parallel across the CPU. -1 will use all
+        available cores.
+
+    Attributes
+    ----------
+
+    matrix : ndarray
+        Output similarity matrix reshaped to initial i, j.
+
 
     '''
     def __init__(self, window_size=3, n_jobs=1):
-        '''
-        Initialize moving window
-
-        Parameters
-        ----------
-
-        window_size : int, default=3
-            Single integer size which indicates the i,j size of the moving
-            window. E.g. window_size of 3 is equal to a window size of 3,3.
-            Values must be odd numbers due to the way the window size is
-            computed where the window_size // 2 is equal to the number of cells
-            on each side of a cell is needed for a window.
-
-        n_jobs : int, default=1
-            Number of jobs to run in parallel across the CPU. -1 will use all
-            available cores.
-        '''
         self.__w = window_size
         self.threads = n_jobs
         # Initialize
@@ -366,6 +361,5 @@ if __name__ == '__main__':
     test = mw.fit(x, y)
     end = time.time() - start
     print(mw.sim)
-    #mw.plot(cmap="magma")
-    mw.save_tif(x, "/home/owen/tmp/OUT.tif")
+    mw.plot(cmap="magma")
 
