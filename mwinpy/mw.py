@@ -57,14 +57,6 @@ class MWin:
                 func(self, *args, **kwargs)
         return wrapper
 
-    def __check_types(func):
-        def wrapper(self, x, y, nodata):
-            if type(x) != type(y):
-                raise TypeError("Inputs x and y are not the same type")
-            func(self, x, y, nodata)
-        return wrapper
-
-
     def __split(self):
         '''
         Creates list of array position values which are used to split the array
@@ -228,22 +220,8 @@ class MWin:
                     vector.append(self.__mw(arr1_sl, arr2_sl, ii, j))
         return vector
 
-    @__check_types
-    def __load_data(self, x, y, nodata):
-
-        if type(x) and type(y) == str:
-            path1 = gdal.Open(x)
-            path2 = gdal.Open(y)
-            self.arr1 = path1.GetRasterBand(1).ReadAsArray()
-            self.arr2 = path2.GetRasterBand(1).ReadAsArray()
-            self.nodata = path1.GetRasterBand(1).GetNoDataValue()
-        elif type(x) and type(y) == np.ndarray:
-            self.arr1 = x
-            self.arr2 = y
-            self.nodata = nodata
-
     @__verbose
-    def fit(self, x, y, nodata=None, ):
+    def fit(self, x, y, nodata=None):
         '''
         Computes moving window algorithm.
 
@@ -258,12 +236,22 @@ class MWin:
             Only needs to be set if x and y are ndarrays, otherwise the nodata
             value is read from the raster datasets.
         '''
-        self.__load_data(x, y, nodata)
 
-        if self.arr1.shape != self.arr2.shape:
+        if type(x) and type(y) == str:
+            path1 = gdal.Open(x)
+            path2 = gdal.Open(y)
+            arr1 = path1.GetRasterBand(1).ReadAsArray()
+            arr2 = path2.GetRasterBand(1).ReadAsArray()
+            self.nodata = path1.GetRasterBand(1).GetNoDataValue()
+        elif type(x) and type(y) == np.ndarray:
+            arr1 = x
+            arr2 = y
+
+
+        if arr1.shape != arr2.shape:
             raise Exception("Shape of x and y is not the same")
 
-        self.i, self.j = self.arr1.shape
+        self.i, self.j = arr1.shape
         # Create initial list of starts and stops for the split
 
         self.cluster = self.i // self.threads
@@ -280,14 +268,14 @@ class MWin:
 
         if self.threads == 1:
             results = []
-            results.append(self.moving_window(self.arr1, self.arr2))
+            results.append(self.moving_window(arr1, arr2))
         else:
             slice = self.__split()
             slice_dict = {}
             for i in range(len(slice)):
                 slice_dict.update({i: slice[i]})
             results = Parallel(n_jobs=self.threads)(delayed(
-                      self.split_moving_window)(self.arr1, self.arr2, sl)
+                      self.split_moving_window)(arr1, arr2, sl)
                       for sl in slice_dict.items())
 
         vector = []
@@ -304,11 +292,6 @@ class MWin:
                                     copy=True)
 
         return results
-
-    def fit_multi():
-
-
-        return
 
     def plot(self, cmap="Greys"):
 
@@ -340,11 +323,20 @@ class MWin:
         dst_ds = None
 
 
+class MultiResolution:
+
+    def __init__(self, window_list, k=0, n_jobs=1):
+
+        self.window_list = window_list
+        self.weight = k
+        self.threads = n_jobs
+
+
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/nan_2016.tif"
-    y = "/home/owen/Data/mwin/nan_2013.tif"
+    x = "/home/owen/Data/mwin/2016.tif"
+    y = "/home/owen/Data/mwin/2013.tif"
 
     w = [3, 13, 23, 33, 43, 53, 63]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
