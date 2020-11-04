@@ -2,7 +2,7 @@ About
 =====
 
 MWinPy is a parallelized implementation of the moving window comparison
-algorithm (Costanza, 1989) designed to ingrated easily with with geocomputational
+algorithm ([1]_) designed to ingrated easily with with geocomputational
 workflows.
 
 Moving window comuarisons can be useful for comparing changes between two different data sets while taking into account spatial patterns that a pixel by pixel approach will fail to detect.
@@ -18,3 +18,9 @@ The moving window algorithm is further quantified with the weighted multiple res
 .. math:: F_t = \frac{\sum_{w=1}^{n}F_we^{-k(w - 1)}}{\sum_{w=1}^{n}e^{-k(w - 1)}}
 
 where :math:`n` is the total number of window resolutions to iterate, and :math:`k` is the constant weight where :math:`k = 0`  gives all windows the same weight and :math:`k = 1` gives the first several resolutions more weight.
+
+Citation
+----------
+
+.. [1] Costanza, R. (1989). Model goodness of fit: a multiple resolution
+       procedure. Ecological modelling, 47(3-4), 199-215.

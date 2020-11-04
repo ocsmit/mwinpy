@@ -15,6 +15,7 @@ A parallelized categorical raster comparison algorithm.
 
    about
    MWinPy
+   examples
 
 
 Indices and tables
