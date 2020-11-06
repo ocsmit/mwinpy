@@ -147,17 +147,16 @@ class MWin:
             b = self.__neighbors(arr2, ii, j)
             # Find number of cells which are different values. A value of
             # 0 indicates it is the same.
-            c = abs(a - b)
-            p = list(set(np.concatenate((a, b))))
+            p = set(a).union(set(b))
             d = 0
-            for i in range(len(p)):
-                a1 = len(np.where(a == p[i])[0])
-                a2 = len(np.where(b == p[i])[0])
+            for i in p:
+                a1 = len(np.where(a == i)[0])
+                a2 = len(np.where(b == i)[0])
                 d += abs(a1 - a2)
             # Divide number of cells which are different by the total number of
             # cells in the two neighborhoods. If it is 100% similar assign cell
             # the value of 1.
-            w = (((len(c) * 2)) ** 2)
+            w = (((len(a) * 2)) ** 2) if len(a) == len(b) else len(a - b)
             similarity = (1 - d / w) if d != 0 else 1
             return similarity
 
@@ -366,8 +365,8 @@ class MultiResolution:
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/2016_8.tif"
-    y = "/home/owen/Data/mwin/2001_8.tif"
+    x = "/home/owen/Data/mwin/2016.tif"
+    y = "/home/owen/Data/mwin/2013.tif"
 
     w = [3, 13, 23, 33, 43, 53, 63]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -376,17 +375,23 @@ if __name__ == '__main__':
 
     t = 4
     #w = 3
+    threads = []
+    for i in range(len(w)):
 
     # t = int(input("Threads: "))
     # w = int(input("Window: "))
-    start = time.time()
+        start = time.time()
     #mw = MultiResolution(w, 0, 4)
-    mw = MWin(101, t)
-    test = mw.fit(x, y)
-    end = time.time() - start
-    print(mw.sim)
+        mw = MWin(w[i], t)
+        test = mw.fit(x, y)
+        end = time.time() - start
+        print(mw.sim)
+        threads.append(w[i])
+        out_times.append(end)
+    print(threads)
+    print(out_times)
     #pte(urint(mw.ft)
-    mw.plot(cmap="magma")
+    #mw.plot(cmap="magma")
     #mw.plot()
 
     #mw.save_tif(x, "/home/owen/tmp/TEST.tif")
