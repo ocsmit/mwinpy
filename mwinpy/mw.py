@@ -1,4 +1,5 @@
 import os
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -137,7 +138,6 @@ class MWin:
         '''
 
         # number of total cells across two neighborhoods with window size w.
-
         # Assign nodata value of -1 which will be ignored in final coefficient
         if arr1[ii][j] and arr2[ii][j] == self.nodata:
             return -1
@@ -148,11 +148,16 @@ class MWin:
             # Find number of cells which are different values. A value of
             # 0 indicates it is the same.
             c = abs(a - b)
-            d = len(np.nonzero(c)[0])
+            p = list(set(np.concatenate((a, b))))
+            d = 0
+            for i in range(len(p)):
+                a1 = len(np.where(a == p[i])[0])
+                a2 = len(np.where(b == p[i])[0])
+                d += abs(a1 - a2)
             # Divide number of cells which are different by the total number of
             # cells in the two neighborhoods. If it is 100% similar assign cell
             # the value of 1.
-            w = (((len(c) * 2) + 1) ** 2)
+            w = (((len(c) * 2)) ** 2)
             similarity = (1 - d / w) if d != 0 else 1
             return similarity
 
@@ -231,7 +236,7 @@ class MWin:
         x : ndarray, str
             Must be ndarray or a valid raster file path.
         y : ndarray, str
-            Must be ndarray or a valid raster file path.
+            Must be ndarray st(or a valid raster file path.
         nodata : int, default=None
             Only needs to be set if x and y are ndarrays, otherwise the nodata
             value is read from the raster datasets.
@@ -298,7 +303,6 @@ class MWin:
         plt.imshow(self.matrix, cmap=cmap)
         plt.show()
 
-
     def save_tif(self, snap, out_tif):
         if os.path.exists(out_tif):
             os.remove(out_tif)
@@ -330,13 +334,40 @@ class MultiResolution:
         self.window_list = window_list
         self.weight = k
         self.threads = n_jobs
+        self.sim = {}
+
+    def fit(self, x, y, nodata=None):
+
+        for i in range(len(self.window_list)):
+            mw = MWin(self.window_list[i], self.threads)
+            mw.fit(x, y, nodata)
+            self.sim.update({self.window_list[i] : mw.sim})
+
+        num = 0
+        den = 0
+        k = self.weight
+        for i in range(len(self.window_list)):
+            num += self.sim.get(self.window_list[i]) * math.e**-k * (self.window_list[i] - 1)
+            den += math.e**-k * (self.window_list[i] - 1)
+
+        self.ft = num / den
+
+    def plot(self):
+
+        dictonary_list = sorted(self.sim.items())
+        x, y = zip(*dictonary_list)
+
+        plt.plot(x, y)
+        plt.show()
+
+
 
 
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/2016.tif"
-    y = "/home/owen/Data/mwin/2013.tif"
+    x = "/home/owen/Data/mwin/2016_8.tif"
+    y = "/home/owen/Data/mwin/2001_8.tif"
 
     w = [3, 13, 23, 33, 43, 53, 63]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -344,14 +375,21 @@ if __name__ == '__main__':
     out_times = []
 
     t = 4
-    w = 3
+    #w = 3
 
     # t = int(input("Threads: "))
     # w = int(input("Window: "))
     start = time.time()
-    mw = MWin(w, t)
+    #mw = MultiResolution(w, 0, 4)
+    mw = MWin(101, t)
     test = mw.fit(x, y)
     end = time.time() - start
     print(mw.sim)
+    #pte(urint(mw.ft)
     mw.plot(cmap="magma")
+    #mw.plot()
+
+    #mw.save_tif(x, "/home/owen/tmp/TEST.tif")
+
+
 
