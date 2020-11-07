@@ -150,8 +150,8 @@ class MWin:
             p = set(a).union(set(b))
             d = 0
             for i in p:
-                a1 = len(np.where(a == i)[0])
-                a2 = len(np.where(b == i)[0])
+                a1 = len(a[a == i])
+                a2 = len(b[b == i])
                 d += abs(a1 - a2)
             # Divide number of cells which are different by the total number of
             # cells in the two neighborhoods. If it is 100% similar assign cell
@@ -385,7 +385,7 @@ if __name__ == '__main__':
         mw = MWin(w[i], t)
         test = mw.fit(x, y)
         end = time.time() - start
-        print(mw.sim)
+        print(mw.sim, end)
         threads.append(w[i])
         out_times.append(end)
     print(threads)
