@@ -148,15 +148,15 @@ class MWin:
             # Find number of cells which are different values. A value of
             # 0 indicates it is the same.
             p = set(a).union(set(b))
+            #d = sum(self.__compare_uni(p, a, b))
             d = 0
             for i in p:
-                a1 = len(a[a == i])
-                a2 = len(b[b == i])
-                d += abs(a1 - a2)
+                d += abs(sum(a == i) - sum(b == i))
+
             # Divide number of cells which are different by the total number of
             # cells in the two neighborhoods. If it is 100% similar assign cell
             # the value of 1.
-            w = (((len(a) * 2)) ** 2) if len(a) == len(b) else len(a - b)
+            w = (2 * len(a))
             similarity = (1 - d / w) if d != 0 else 1
             return similarity
 
@@ -376,25 +376,25 @@ if __name__ == '__main__':
     t = 4
     #w = 3
     threads = []
-    for i in range(len(w)):
+    #for i in range(len(w)):
 
     # t = int(input("Threads: "))
     # w = int(input("Window: "))
-        start = time.time()
+    start = time.time()
     #mw = MultiResolution(w, 0, 4)
-        mw = MWin(w[i], t)
-        test = mw.fit(x, y)
-        end = time.time() - start
-        print(mw.sim, end)
-        threads.append(w[i])
-        out_times.append(end)
-    print(threads)
-    print(out_times)
+    mw = MWin(3, t)
+    test = mw.fit(x, y)
+    end = time.time() - start
+    print(mw.sim, end)
+    #    threads.append(w[i])
+    #    out_times.append(end)
+    #print(threads)
+    #print(out_times)
     #pte(urint(mw.ft)
-    #mw.plot(cmap="magma")
+    mw.plot(cmap="magma")
     #mw.plot()
 
-    #mw.save_tif(x, "/home/owen/tmp/TEST.tif")
+    mw.save_tif(x, "/home/owen/tmp/TEST.tif")
 
 
 
