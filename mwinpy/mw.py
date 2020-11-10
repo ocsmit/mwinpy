@@ -147,12 +147,21 @@ class MWin:
             b = self.__neighbors(arr2, ii, j)
             # Find number of cells which are different values. A value of
             # 0 indicates it is the same.
-            p = set(a).union(set(b))
             #d = sum(self.__compare_uni(p, a, b))
+            a1_u, a1_c = np.unique(a, return_counts=True)
+            a2_u, a2_c = np.unique(b, return_counts=True)
+            a1 = dict(zip(a1_u, a1_c))
+            a2 = dict(zip(a2_u, a2_c))
+            p = set(a1_u).union(set(a2_u))
             d = 0
-            for i in p:
-                d += abs(sum(a == i) - sum(b == i))
 
+            for i in p:
+                if i not in a1:
+                    d += abs(0 - a2.get(i))
+                elif i not in a2:
+                    d += abs(a1.get(i) - 0)
+                else:
+                    d += abs(a1.get(i) - a2.get(i))
             # Divide number of cells which are different by the total number of
             # cells in the two neighborhoods. If it is 100% similar assign cell
             # the value of 1.
@@ -378,16 +387,16 @@ if __name__ == '__main__':
     threads = []
     #for i in range(len(w)):
 
-    # t = int(input("Threads: "))
+    #t = int(input("Threads: "))
     # w = int(input("Window: "))
     start = time.time()
     #mw = MultiResolution(w, 0, 4)
     mw = MWin(3, t)
-    test = mw.fit(x, y)
+    mw.fit(x, y)
     end = time.time() - start
     print(mw.sim, end)
-    #    threads.append(w[i])
-    #    out_times.append(end)
+        #threads.append(w[i])
+        #out_times.append(end)
     #print(threads)
     #print(out_times)
     #pte(urint(mw.ft)
