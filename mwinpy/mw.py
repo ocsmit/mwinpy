@@ -355,8 +355,8 @@ class MultiResolution:
         den = 0
         k = self.weight
         for i in range(len(self.window_list)):
-            num += self.sim.get(self.window_list[i]) * math.e**-k * (self.window_list[i] - 1)
-            den += math.e**-k * (self.window_list[i] - 1)
+            num += self.sim.get(self.window_list[i]) * math.e**(-k * self.window_list[i] - 1)
+            den += math.e**(-k * self.window_list[i] - 1)
 
         self.ft = num / den
 
@@ -364,6 +364,11 @@ class MultiResolution:
 
         dictonary_list = sorted(self.sim.items())
         x, y = zip(*dictonary_list)
+        self.x = x
+        self.y = y
+
+        print(x)
+        print(y)
 
         plt.plot(x, y)
         plt.show()
@@ -374,10 +379,10 @@ class MultiResolution:
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/2016.tif"
-    y = "/home/owen/Data/mwin/2013.tif"
+    x = "/home/owen/Data/mwin/2016_8.tif"
+    y = "/home/owen/Data/mwin/2001_8.tif"
 
-    w = [3, 13, 23, 33, 43, 53, 63]
+    w = [3, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     out_dict = {}
     out_times = []
@@ -385,25 +390,27 @@ if __name__ == '__main__':
     t = 4
     #w = 3
     threads = []
+    name = 0
     #for i in range(len(w)):
 
     #t = int(input("Threads: "))
     # w = int(input("Window: "))
     start = time.time()
-    #mw = MultiResolution(w, 0, 4)
-    mw = MWin(3, t)
+    mw = MultiResolution(w, 1, 4)
+        #mw = MWin(w[i], t)
     mw.fit(x, y)
     end = time.time() - start
-    print(mw.sim, end)
+        #print(mw.sim, end)
         #threads.append(w[i])
-        #out_times.append(end)
+        #out_times.append(mw.sim)
+        #name = f"/home/owen/tmp/out_2001_2016_{w[i]}w.tif"
+        #print(name)
+        #mw.save_tif(x, name)
     #print(threads)
     #print(out_times)
     #pte(urint(mw.ft)
-    mw.plot(cmap="magma")
-    #mw.plot()
-
-    mw.save_tif(x, "/home/owen/tmp/TEST.tif")
+    #mw.plot(cmap="magma")
+    print(mw.ft)
 
 
 
