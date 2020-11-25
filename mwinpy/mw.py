@@ -35,9 +35,10 @@ class MWin:
 
     '''
     def __init__(self, window_size=3, n_jobs=1):
+
+        # Initialize
         self.__w = window_size
         self.threads = n_jobs
-        # Initialize
         self.__split_itr = []
         self.vector = []
         # Get d value which indicates the number of cells to move from the
@@ -47,6 +48,7 @@ class MWin:
         self.time = []
 
     def __verbose(func):
+        # Decorative function for verbose time outputs
         def wrapper(self, *args, **kwargs):
             if self.verbosity == 1:
                 start_time = time.time()
@@ -379,8 +381,8 @@ class MultiResolution:
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/2016_8.tif"
-    y = "/home/owen/Data/mwin/2001_8.tif"
+    x = "/home/owen/Data/mwin/nan_2016.tif"
+    y = "/home/owen/Data/mwin/nan_2013.tif"
 
     w = [3, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -396,8 +398,8 @@ if __name__ == '__main__':
     #t = int(input("Threads: "))
     # w = int(input("Window: "))
     start = time.time()
-    mw = MultiResolution(w, 1, 4)
-        #mw = MWin(w[i], t)
+    #mw = MultiResolution(w, 1, 4)
+    mw = MWin(50, t)
     mw.fit(x, y)
     end = time.time() - start
         #print(mw.sim, end)
@@ -409,8 +411,8 @@ if __name__ == '__main__':
     #print(threads)
     #print(out_times)
     #pte(urint(mw.ft)
-    #mw.plot(cmap="magma")
-    print(mw.ft)
+    print(mw.sim)
+    mw.plot(cmap="magma")
 
 
 
