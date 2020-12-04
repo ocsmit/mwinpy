@@ -261,6 +261,7 @@ class MWin:
         elif type(x) and type(y) == np.ndarray:
             arr1 = x
             arr2 = y
+            self.nodata = -9999
 
 
         if arr1.shape != arr2.shape:
@@ -349,9 +350,9 @@ class MultiResolution:
     def fit(self, x, y, nodata=None):
 
         for i in range(len(self.window_list)):
-            mw = MWin(self.window_list[i], self.threads)
-            mw.fit(x, y, nodata)
-            self.sim.update({self.window_list[i] : mw.sim})
+             mw = MWin(self.window_list[i], self.threads)
+             mw.fit(x, y, nodata)
+             self.sim.update({self.window_list[i] : mw.sim})
 
         num = 0
         den = 0
@@ -381,8 +382,8 @@ class MultiResolution:
 if __name__ == '__main__':
     # arr1 = np.random.randint(2, size=(753, 200))
     # arr2 = np.random.randint(2, size=(753, 200))
-    x = "/home/owen/Data/mwin/nan_2016.tif"
-    y = "/home/owen/Data/mwin/nan_2013.tif"
+    x = "/home/owen/Data/mwin/2016_8.tif"
+    y = "/home/owen/Data/mwin/2001_8.tif"
 
     w = [3, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
     t = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
@@ -398,8 +399,8 @@ if __name__ == '__main__':
     #t = int(input("Threads: "))
     # w = int(input("Window: "))
     start = time.time()
-    #mw = MultiResolution(w, 1, 4)
-    mw = MWin(50, t)
+    mw = MultiResolution(w, k=0, n_jobs=4)
+    #mw = MWin(5, 4)
     mw.fit(x, y)
     end = time.time() - start
         #print(mw.sim, end)
@@ -407,12 +408,12 @@ if __name__ == '__main__':
         #out_times.append(mw.sim)
         #name = f"/home/owen/tmp/out_2001_2016_{w[i]}w.tif"
         #print(name)
-        #mw.save_tif(x, name)
+    #mw.save_tif(x, "/home/owen/Data/mwin/nan_5.tif")
     #print(threads)
     #print(out_times)
-    #pte(urint(mw.ft)
+    print(mw.ft)
     print(mw.sim)
-    mw.plot(cmap="magma")
+    #mw.plot(cmap="magma")
 
 
 
