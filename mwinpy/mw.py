@@ -1,3 +1,8 @@
+###############################################################################
+# Copyright (C) 2020, Owen Smith, University of North Georgia
+# License: GPL v3.0
+###############################################################################
+
 import os
 import math
 import matplotlib.pyplot as plt
