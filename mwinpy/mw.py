@@ -11,7 +11,6 @@ import time
 from osgeo import gdal
 from joblib import Parallel, delayed
 
-# TODO: Documentation, thorough commenting
 
 class MWin:
     '''
@@ -65,33 +64,18 @@ class MWin:
                 func(self, *args, **kwargs)
         return wrapper
 
-    def __split(self):
-        '''
-        Creates list of array position values which are used to split the array
-        across the CPU.
 
-        Returns
-        -------
+    def __make_clusters(self, shape):
 
-        iter_range : list
-            List of all split cell ranges with edge artifacts taken into
-            account.
-        '''
-        # Initial list
-        iter_range = []
-        # Number of splits determined by the number of threads to use.
-        for j in range(self.threads):
-            # Take into account edge artifacts created by loss of contextual
-            # data for windows due to split.
-            if j == 0:
-                iter_range.append([0, self.__split_itr[j] + self.__d])
-            elif j == self.threads - 1:
-                iter_range.append([self.__split_itr[j] - (self.cluster +
-                                  self.rem + self.__d), self.__split_itr[j]])
-            else:
-                iter_range.append([self.__split_itr[j] - (self.cluster +
-                                  self.__d), self.__split_itr[j] + self.__d])
-        return iter_range
+        if self.__rem !=0:
+            self.__data_clusters = [[i, i + self.split_range] for i in
+                    range(0, shape[0] - self.split_range,
+                        self.split_range)]
+            self.__data_clusters[-1][1] += self.__rem
+        else:
+            self.__data_clusters = [[i, i + self.split_range] for i in
+                    range(0, shape[0], self.split_range)]
+
 
     def __neighbors(self, arr, i, j):
         '''
@@ -223,21 +207,11 @@ class MWin:
             List vector which contains similarity values of each cell
 
         '''
-        arr1_sl, arr2_sl = arr1[sl[1][0] : sl[1][1], ], \
-                           arr2[sl[1][0] : sl[1][1], ]
+        i1, i2 = sl[1]
         vector = []
-        if sl[0] == 0:
-            for ii in range(0, arr1_sl.shape[0] - self.__d):
-                for j in range(arr1_sl.shape[1]):
-                    vector.append(self.__mw(arr1_sl, arr2_sl, ii, j))
-        elif sl[0] == self.threads - 1:
-            for ii in range(self.__d, arr1_sl.shape[0]):
-                for j in range(arr1_sl.shape[1]):
-                    vector.append(self.__mw(arr1_sl, arr2_sl, ii, j))
-        else:
-            for ii in range(self.__d, arr1_sl.shape[0] - self.__d):
-                for j in range(arr1_sl.shape[1]):
-                    vector.append(self.__mw(arr1_sl, arr2_sl, ii, j))
+        for ii in range(i1, i2):
+            for j in range(arr1.shape[1]):
+                vector.append(self.__mw(arr1, arr2, ii, j))
         return vector
 
     @__verbose
@@ -274,30 +248,22 @@ class MWin:
             else:
                 self.nodata = nodata
 
-
         if arr1.shape != arr2.shape:
             raise Exception("Shape of x and y is not the same")
 
         self.i, self.j = arr1.shape
         # Create initial list of starts and stops for the split
 
-        self.cluster = self.i // self.threads
-        self.rem = self.i % self.threads
-
-        itera = 0
-        for f in range(self.threads):
-            if f == self.threads - 1:
-                self.__split_itr.append((self.cluster) + itera +
-                                        (self.rem))
-            else:
-                self.__split_itr.append((self.cluster) + itera)
-            itera += (self.cluster)
+        self.split_range = self.i // self.threads
+        self.__rem = self.i % self.threads
+        self.__make_clusters(arr1.shape)
 
         if self.threads == 1:
             results = []
             results.append(self.moving_window(arr1, arr2))
         else:
-            slice = self.__split()
+            slice = self.__data_clusters
+            print(slice)
             slice_dict = {}
             for i in range(len(slice)):
                 slice_dict.update({i: slice[i]})
