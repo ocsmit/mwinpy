@@ -263,7 +263,6 @@ class MWin:
             results.append(self.moving_window(arr1, arr2))
         else:
             slice = self.__data_clusters
-            print(slice)
             slice_dict = {}
             for i in range(len(slice)):
                 slice_dict.update({i: slice[i]})
